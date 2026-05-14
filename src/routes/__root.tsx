@@ -75,14 +75,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Course and Assignment Manager" },
+      { name: "description", content: "By Kelompok 2 Matkul RPL" },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Course and Assignment Manager" },
+      { property: "og:description", content: "By Kelompok 2 Matkul RPL" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Course and Assignment Manager" },
+      { name: "twitter:description", content: "By Kelompok 2 Matkul RPL" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ed4852d-4a26-473c-9ad4-366344a5feed/id-preview-f2857b0e--66946ab6-25f9-4a64-921a-c93777c292af.lovable.app-1778761421660.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/1ed4852d-4a26-473c-9ad4-366344a5feed/id-preview-f2857b0e--66946ab6-25f9-4a64-921a-c93777c292af.lovable.app-1778761421660.png" },
     ],
     links: [
       {
