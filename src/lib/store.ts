@@ -1,4 +1,5 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export type Course = {
   id: string;
@@ -18,22 +19,7 @@ export type Assignment = {
 
 type DB = { courses: Course[]; assignments: Assignment[] };
 
-const KEY = "akademik.db.v1";
-
-const seed: DB = {
-  courses: [
-    { id: "c1", name: "Pemrograman Web", code: "TK1234", semester: 4 },
-    { id: "c2", name: "Basis Data", code: "TK2041", semester: 4 },
-    { id: "c3", name: "Interaksi Manusia & Komputer", code: "TK3015", semester: 5 },
-  ],
-  assignments: [
-    { id: "a1", title: "ERD Project", courseId: "c2", deadline: addDays(2), status: "belum" },
-    { id: "a2", title: "SQL Query Lanjutan", courseId: "c2", deadline: addDays(7), status: "progress" },
-    { id: "a3", title: "UI Prototype", courseId: "c3", deadline: addDays(5), status: "belum" },
-    { id: "a4", title: "Landing Page Tailwind", courseId: "c1", deadline: addDays(-2), status: "selesai" },
-    { id: "a5", title: "Form Validation", courseId: "c1", deadline: addDays(10), status: "progress" },
-  ],
-};
+const empty: DB = { courses: [], assignments: [] };
 
 function addDays(n: number) {
   const d = new Date();
@@ -41,28 +27,63 @@ function addDays(n: number) {
   return d.toISOString().slice(0, 10);
 }
 
-function load(): DB {
-  if (typeof window === "undefined") return seed;
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (!raw) {
-      localStorage.setItem(KEY, JSON.stringify(seed));
-      return seed;
-    }
-    return JSON.parse(raw) as DB;
-  } catch {
-    return seed;
-  }
-}
-
-let state: DB = typeof window === "undefined" ? seed : load();
+let state: DB = empty;
+let loaded = false;
+let loading = false;
 const listeners = new Set<() => void>();
 
-function persist() {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(KEY, JSON.stringify(state));
-  }
-  listeners.forEach((l) => l());
+function notify() { listeners.forEach((l) => l()); }
+
+async function refresh() {
+  const [c, a] = await Promise.all([
+    supabase.from("courses").select("*").order("name"),
+    supabase.from("assignments").select("*").order("deadline"),
+  ]);
+  state = {
+    courses: (c.data ?? []).map((r: any) => ({ id: r.id, name: r.name, code: r.code, semester: r.semester })),
+    assignments: (a.data ?? []).map((r: any) => ({
+      id: r.id, title: r.title, courseId: r.course_id, deadline: r.deadline,
+      status: r.status, notes: r.notes ?? undefined,
+    })),
+  };
+  loaded = true;
+  notify();
+}
+
+async function ensureLoaded() {
+  if (loaded || loading) return;
+  loading = true;
+  try { await refresh(); } finally { loading = false; }
+}
+
+async function seedIfEmpty(userId: string) {
+  const { count } = await supabase.from("courses").select("*", { count: "exact", head: true });
+  if ((count ?? 0) > 0) return;
+  const { data: cs } = await supabase.from("courses").insert([
+    { user_id: userId, name: "Pemrograman Web", code: "TK1234", semester: 4 },
+    { user_id: userId, name: "Basis Data", code: "TK2041", semester: 4 },
+    { user_id: userId, name: "Interaksi Manusia & Komputer", code: "TK3015", semester: 5 },
+  ]).select("id, code");
+  if (!cs) return;
+  const byCode = Object.fromEntries(cs.map((c: any) => [c.code, c.id]));
+  await supabase.from("assignments").insert([
+    { user_id: userId, course_id: byCode["TK2041"], title: "ERD Project", deadline: addDays(2), status: "belum" },
+    { user_id: userId, course_id: byCode["TK2041"], title: "SQL Query Lanjutan", deadline: addDays(7), status: "progress" },
+    { user_id: userId, course_id: byCode["TK3015"], title: "UI Prototype", deadline: addDays(5), status: "belum" },
+    { user_id: userId, course_id: byCode["TK1234"], title: "Landing Page Tailwind", deadline: addDays(-2), status: "selesai" },
+    { user_id: userId, course_id: byCode["TK1234"], title: "Form Validation", deadline: addDays(10), status: "progress" },
+  ]);
+}
+
+if (typeof window !== "undefined") {
+  supabase.auth.onAuthStateChange(async (_e, session) => {
+    if (session?.user) {
+      await seedIfEmpty(session.user.id);
+      await refresh();
+    } else {
+      state = empty; loaded = false; notify();
+    }
+  });
 }
 
 function subscribe(l: () => void) {
@@ -75,49 +96,62 @@ function getSnapshot() {
 }
 
 export function useDB() {
-  return useSyncExternalStore(subscribe, getSnapshot, () => seed);
+  const snap = useSyncExternalStore(subscribe, getSnapshot, () => empty);
+  useEffect(() => { ensureLoaded(); }, []);
+  return snap;
 }
 
-const id = () => Math.random().toString(36).slice(2, 10);
+async function currentUserId() {
+  const { data } = await supabase.auth.getUser();
+  if (!data.user) throw new Error("Tidak terautentikasi");
+  return data.user.id;
+}
 
 export const db = {
-  addCourse(c: Omit<Course, "id">) {
-    state = { ...state, courses: [...state.courses, { ...c, id: id() }] };
-    persist();
+  async addCourse(c: Omit<Course, "id">) {
+    const user_id = await currentUserId();
+    const { error } = await supabase.from("courses").insert({ ...c, user_id });
+    if (error) throw error;
+    await refresh();
   },
-  updateCourse(id: string, patch: Partial<Course>) {
-    state = {
-      ...state,
-      courses: state.courses.map((c) => (c.id === id ? { ...c, ...patch } : c)),
-    };
-    persist();
+  async updateCourse(id: string, patch: Partial<Course>) {
+    const { error } = await supabase.from("courses").update(patch).eq("id", id);
+    if (error) throw error;
+    await refresh();
   },
-  deleteCourse(id: string) {
-    state = {
-      ...state,
-      courses: state.courses.filter((c) => c.id !== id),
-      assignments: state.assignments.filter((a) => a.courseId !== id),
-    };
-    persist();
+  async deleteCourse(id: string) {
+    const { error } = await supabase.from("courses").delete().eq("id", id);
+    if (error) throw error;
+    await refresh();
   },
-  addAssignment(a: Omit<Assignment, "id">) {
-    state = { ...state, assignments: [...state.assignments, { ...a, id: id() }] };
-    persist();
+  async addAssignment(a: Omit<Assignment, "id">) {
+    const user_id = await currentUserId();
+    const { error } = await supabase.from("assignments").insert({
+      user_id, course_id: a.courseId, title: a.title, deadline: a.deadline,
+      status: a.status, notes: a.notes ?? null,
+    });
+    if (error) throw error;
+    await refresh();
   },
-  updateAssignment(id: string, patch: Partial<Assignment>) {
-    state = {
-      ...state,
-      assignments: state.assignments.map((a) => (a.id === id ? { ...a, ...patch } : a)),
-    };
-    persist();
+  async updateAssignment(id: string, patch: Partial<Assignment>) {
+    const dbPatch: any = { ...patch };
+    if (patch.courseId !== undefined) { dbPatch.course_id = patch.courseId; delete dbPatch.courseId; }
+    if (patch.notes !== undefined) dbPatch.notes = patch.notes ?? null;
+    const { error } = await supabase.from("assignments").update(dbPatch).eq("id", id);
+    if (error) throw error;
+    await refresh();
   },
-  deleteAssignment(id: string) {
-    state = { ...state, assignments: state.assignments.filter((a) => a.id !== id) };
-    persist();
+  async deleteAssignment(id: string) {
+    const { error } = await supabase.from("assignments").delete().eq("id", id);
+    if (error) throw error;
+    await refresh();
   },
-  reset() {
-    state = seed;
-    persist();
+  async reset() {
+    const user_id = await currentUserId();
+    await supabase.from("assignments").delete().eq("user_id", user_id);
+    await supabase.from("courses").delete().eq("user_id", user_id);
+    await seedIfEmpty(user_id);
+    await refresh();
   },
 };
 
