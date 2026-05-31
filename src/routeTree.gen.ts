@@ -14,8 +14,8 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as AssignmentsIndexRouteImport } from './routes/assignments.index'
-import { Route as AssignmentsSelesaiRouteImport } from './routes/assignments.selesai'
 import { Route as CoursesIdRouteImport } from './routes/courses.$id'
+import { Route as AssignmentsSelesaiRouteImport } from './routes/assignments.selesai'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -57,18 +57,18 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/assignments/selesai': typeof AssignmentsSelesaiRoute
   '/courses/$id': typeof CoursesIdRoute
   '/assignments/': typeof AssignmentsIndexRoute
-  '/assignments/selesai': typeof AssignmentsSelesaiRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/assignments/selesai': typeof AssignmentsSelesaiRoute
   '/courses/$id': typeof CoursesIdRoute
   '/assignments': typeof AssignmentsIndexRoute
-  '/assignments/selesai': typeof AssignmentsSelesaiRoute
   '/courses': typeof CoursesIndexRoute
 }
 export interface FileRoutesById {
@@ -76,9 +76,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/settings': typeof SettingsRoute
+  '/assignments/selesai': typeof AssignmentsSelesaiRoute
   '/courses/$id': typeof CoursesIdRoute
   '/assignments/': typeof AssignmentsIndexRoute
-  '/assignments/selesai': typeof AssignmentsSelesaiRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRouteTypes {
@@ -87,27 +87,27 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/settings'
+    | '/assignments/selesai'
     | '/courses/$id'
     | '/assignments/'
-    | '/assignments/selesai'
     | '/courses/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
     | '/settings'
+    | '/assignments/selesai'
     | '/courses/$id'
     | '/assignments'
-    | '/assignments/selesai'
     | '/courses'
   id:
     | '__root__'
     | '/'
     | '/login'
     | '/settings'
+    | '/assignments/selesai'
     | '/courses/$id'
     | '/assignments/'
-    | '/assignments/selesai'
     | '/courses/'
   fileRoutesById: FileRoutesById
 }
@@ -115,9 +115,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   SettingsRoute: typeof SettingsRoute
+  AssignmentsSelesaiRoute: typeof AssignmentsSelesaiRoute
   CoursesIdRoute: typeof CoursesIdRoute
   AssignmentsIndexRoute: typeof AssignmentsIndexRoute
-  AssignmentsSelesaiRoute: typeof AssignmentsSelesaiRoute
   CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
@@ -158,18 +158,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssignmentsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/assignments/selesai': {
-      id: '/assignments/selesai'
-      path: '/assignments/selesai'
-      fullPath: '/assignments/selesai'
-      preLoaderRoute: typeof AssignmentsSelesaiRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/courses/$id': {
       id: '/courses/$id'
       path: '/courses/$id'
       fullPath: '/courses/$id'
       preLoaderRoute: typeof CoursesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/assignments/selesai': {
+      id: '/assignments/selesai'
+      path: '/assignments/selesai'
+      fullPath: '/assignments/selesai'
+      preLoaderRoute: typeof AssignmentsSelesaiRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -179,9 +179,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   SettingsRoute: SettingsRoute,
+  AssignmentsSelesaiRoute: AssignmentsSelesaiRoute,
   CoursesIdRoute: CoursesIdRoute,
   AssignmentsIndexRoute: AssignmentsIndexRoute,
-  AssignmentsSelesaiRoute: AssignmentsSelesaiRoute,
   CoursesIndexRoute: CoursesIndexRoute,
 }
 export const routeTree = rootRouteImport
