@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CoursesIndexRouteImport } from './routes/courses.index'
 import { Route as AssignmentsIndexRouteImport } from './routes/assignments.index'
+import { Route as AssignmentsSelesaiRouteImport } from './routes/assignments.selesai'
 import { Route as CoursesIdRouteImport } from './routes/courses.$id'
 
 const SettingsRoute = SettingsRouteImport.update({
@@ -46,6 +47,11 @@ const CoursesIdRoute = CoursesIdRouteImport.update({
   path: '/courses/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AssignmentsSelesaiRoute = AssignmentsSelesaiRouteImport.update({
+  id: '/assignments/selesai',
+  path: '/assignments/selesai',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -53,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof SettingsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/assignments/': typeof AssignmentsIndexRoute
+  '/assignments/selesai': typeof AssignmentsSelesaiRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRoutesByTo {
@@ -61,6 +68,7 @@ export interface FileRoutesByTo {
   '/settings': typeof SettingsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/assignments': typeof AssignmentsIndexRoute
+  '/assignments/selesai': typeof AssignmentsSelesaiRoute
   '/courses': typeof CoursesIndexRoute
 }
 export interface FileRoutesById {
@@ -70,6 +78,7 @@ export interface FileRoutesById {
   '/settings': typeof SettingsRoute
   '/courses/$id': typeof CoursesIdRoute
   '/assignments/': typeof AssignmentsIndexRoute
+  '/assignments/selesai': typeof AssignmentsSelesaiRoute
   '/courses/': typeof CoursesIndexRoute
 }
 export interface FileRouteTypes {
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/courses/$id'
     | '/assignments/'
+    | '/assignments/selesai'
     | '/courses/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/courses/$id'
     | '/assignments'
+    | '/assignments/selesai'
     | '/courses'
   id:
     | '__root__'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/courses/$id'
     | '/assignments/'
+    | '/assignments/selesai'
     | '/courses/'
   fileRoutesById: FileRoutesById
 }
@@ -105,6 +117,7 @@ export interface RootRouteChildren {
   SettingsRoute: typeof SettingsRoute
   CoursesIdRoute: typeof CoursesIdRoute
   AssignmentsIndexRoute: typeof AssignmentsIndexRoute
+  AssignmentsSelesaiRoute: typeof AssignmentsSelesaiRoute
   CoursesIndexRoute: typeof CoursesIndexRoute
 }
 
@@ -145,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AssignmentsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/assignments/selesai': {
+      id: '/assignments/selesai'
+      path: '/assignments/selesai'
+      fullPath: '/assignments/selesai'
+      preLoaderRoute: typeof AssignmentsSelesaiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/courses/$id': {
       id: '/courses/$id'
       path: '/courses/$id'
@@ -161,6 +181,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsRoute: SettingsRoute,
   CoursesIdRoute: CoursesIdRoute,
   AssignmentsIndexRoute: AssignmentsIndexRoute,
+  AssignmentsSelesaiRoute: AssignmentsSelesaiRoute,
   CoursesIndexRoute: CoursesIndexRoute,
 }
 export const routeTree = rootRouteImport

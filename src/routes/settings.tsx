@@ -66,8 +66,8 @@ function SettingsPage() {
         <CardHeader><CardTitle>Data Aplikasi</CardTitle></CardHeader>
         <CardContent className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="font-medium">Reset data contoh</p>
-            <p className="text-sm text-muted-foreground">Mengembalikan semua data ke kondisi awal.</p>
+            <p className="font-medium">Hapus semua data</p>
+            <p className="text-sm text-muted-foreground">Menghapus semua mata kuliah dan assignment secara permanen.</p>
           </div>
           <Button variant="outline" className="text-destructive" onClick={() => setReset(true)}>
             Reset Data
@@ -79,7 +79,7 @@ function SettingsPage() {
         open={reset}
         onOpenChange={setReset}
         title="Reset semua data?"
-        description="Semua mata kuliah dan assignment akan dikembalikan ke contoh awal."
+        description="Semua mata kuliah dan assignment akan dihapus permanen. Tindakan ini tidak bisa diurungkan."
         onConfirm={() => {
           db.reset();
           toast.success("Data berhasil di-reset");

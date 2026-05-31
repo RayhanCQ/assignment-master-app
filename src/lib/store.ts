@@ -150,7 +150,6 @@ export const db = {
     const user_id = await currentUserId();
     await supabase.from("assignments").delete().eq("user_id", user_id);
     await supabase.from("courses").delete().eq("user_id", user_id);
-    await seedIfEmpty(user_id);
     await refresh();
   },
 };

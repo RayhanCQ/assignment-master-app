@@ -3,9 +3,9 @@ import type { Assignment } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 const map: Record<Assignment["status"], { label: string; cls: string }> = {
-  belum: { label: "Belum", cls: "bg-muted text-muted-foreground border-border" },
-  progress: { label: "Progress", cls: "bg-warning/15 text-warning-foreground border-warning/30" },
-  selesai: { label: "Selesai", cls: "bg-success/15 text-success border-success/30" },
+  belum: { label: "Belum", cls: "bg-red-500/15 text-red-600 border-red-500/30 dark:text-red-400" },
+  progress: { label: "On Progress", cls: "bg-yellow-400/15 text-yellow-700 border-yellow-400/30 dark:text-yellow-400" },
+  selesai: { label: "Selesai", cls: "bg-green-500/15 text-green-700 border-green-500/30 dark:text-green-400" },
 };
 
 export function StatusBadge({ status }: { status: Assignment["status"] }) {

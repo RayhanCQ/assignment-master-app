@@ -50,7 +50,10 @@ export function AssignmentDialog({
   }, [open, initial, defaultCourseId, courses]);
 
   const isEdit = Boolean(initial);
-  const valid = title.trim().length > 0 && courseId && deadline;
+  const today = new Date().toISOString().slice(0, 10);
+  // Deadline tidak boleh sebelum hari ini (hari pembuatan tugas)
+  const deadlineValid = isEdit ? true : deadline >= today;
+  const valid = title.trim().length > 0 && courseId && deadline && deadlineValid;
 
   function submit() {
     if (!valid) return;
@@ -93,7 +96,16 @@ export function AssignmentDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-2">
               <Label htmlFor="deadline">Deadline</Label>
-              <Input id="deadline" type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
+              <Input
+                id="deadline"
+                type="date"
+                value={deadline}
+                min={isEdit ? undefined : today}
+                onChange={(e) => setDeadline(e.target.value)}
+              />
+              {!isEdit && deadline && deadline < today && (
+                <p className="text-xs text-red-600">Deadline tidak boleh sebelum hari ini.</p>
+              )}
             </div>
             <div className="grid gap-2">
               <Label>Status</Label>

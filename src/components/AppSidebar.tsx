@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, BookOpen, ClipboardList, Settings, GraduationCap, LogOut } from "lucide-react";
+import { LayoutDashboard, BookOpen, ClipboardList, Settings, GraduationCap, LogOut, CheckCircle2 } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +19,8 @@ import { toast } from "sonner";
 const items = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard, exact: true },
   { title: "Mata Kuliah", url: "/courses", icon: BookOpen },
-  { title: "Assignment", url: "/assignments", icon: ClipboardList },
+  { title: "Assignment", url: "/assignments", icon: ClipboardList, exact: true },
+  { title: "Tugas Selesai", url: "/assignments/selesai", icon: CheckCircle2 },
   { title: "Pengaturan", url: "/settings", icon: Settings },
 ];
 
